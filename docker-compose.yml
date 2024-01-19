@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: temporadas
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - app_network
+  loopback-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - mysql
+    networks:
+      - app_network
+  react-admin-app:
+    build:
+      context: ../temporadas_react_app
+      dockerfile: Dockerfile.react
+
+    ports:
+      - 3006:3006
+    networks:
+      - app_network
+    depends_on:
+      - loopback-app
+volumes:
+  db-data:
+
+networks:
+  app_network:
+    driver: bridge
